@@ -12,12 +12,11 @@ namespace API.Extensions
     {
         public static IServiceCollection AddCustomServices(this IServiceCollection AllServices, IConfiguration configuration)
         {
+            AllServices.AddScoped<ITokenService, TokenService>();
             AllServices.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
             });
-
-            AllServices.AddScoped<ITokenService, TokenService>();
 
             return AllServices;
         }
