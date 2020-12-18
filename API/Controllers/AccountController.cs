@@ -40,7 +40,7 @@ namespace API.Controllers
             {
                 Username = UserForInsert.UserName,
                 Token = tokenService.CreateToken(UserForInsert)
-            };
+            };  
             
             
         }
