@@ -1,8 +1,11 @@
 ﻿using API.Data;
+using API.Entities;
 using API.Helpers;
 using API.Interfaces;
 using API.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +21,25 @@ namespace API.Extensions
             AllServices.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             AllServices.AddScoped<ITokenService, TokenService>();
             AllServices.AddScoped<IUserRepository, UserRepository>();
+            AllServices.AddScoped<ILikesRepository, LikesRepository>();
+            AllServices.AddScoped<IMessageRepository, MessageRepository>();
+            
             AllServices.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
+            
+            //AllServices.AddDbContext<IdentityDbContext>(options =>
+            //{
+            //    options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+            //});
+            AllServices.AddIdentityCore<AppUser>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false;
+            })
+                .AddRoles<AppRole>()
+                .AddRoleManager<RoleManager<AppRole>>()
+                .AddSignInManager<SignInManager<AppUser>>()
+                .AddRoleValidator<RoleValidator<AppRole>>()
+                .AddEntityFrameworkStores<DataContext>();
+
             AllServices.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));

@@ -1,0 +1,9 @@
+img{
+    max-height: 40px;
+    
+}
+.unread-msg{
+    background-color: lightgray;
+    font-weight: bolder;
+}
+/* [ngStyle]="{'background-color': message.dateRead === null ? 'lightgray' : 'white'}" */

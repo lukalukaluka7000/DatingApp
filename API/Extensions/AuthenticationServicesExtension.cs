@@ -1,13 +1,17 @@
 ﻿
 
+using API.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
 
 namespace API.Extensions
 {
-    public static  class AuthenticationServicesExtension
+    public static class AuthenticationServicesExtension
     {
         public static IServiceCollection AddAuthenticationServices(this IServiceCollection AllServices, IConfiguration configuration)
         {
@@ -23,7 +27,19 @@ namespace API.Extensions
                         ValidateAudience = false
                     };
                 });
+            AllServices.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("RequireAdminRole", opt => opt.RequireRole(new List<string> { "Admin" }));
+                opt.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole(new List<string> { "Moderator", "Admin" }));
+                opt.AddPolicy("EditUsersRoles", policy => policy.RequireRole(new List<string> { "Admin" }));
+            });
             return AllServices;
         }
+
+        //public static string Format<T>(this T Dani) where T : Enum
+        //{
+        //    return "Jebali te dani";
+        //}
+
     }
 }

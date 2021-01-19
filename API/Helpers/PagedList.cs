@@ -10,13 +10,16 @@ namespace API.Helpers
     {
         public PagedList(IEnumerable<T> items, int pageSize, int totalNumItems, int currentPage)
         {
-            TotalPages = (int) Math.Ceiling((double)(totalNumItems / pageSize));
+            TotalPages = this.getTotalPages(totalNumItems, pageSize);
             PageSize = pageSize;
             TotalNumItems = totalNumItems;
             CurrentPage = currentPage;
             AddRange(items);
         }
-
+        private int getTotalPages(int numItems, int pageSize)
+        {
+            return (int)Math.Ceiling((numItems / (double)pageSize));
+        }
         public int TotalPages { get; set; }
         public int PageSize { get; set; }
         public int TotalNumItems { get; set; }

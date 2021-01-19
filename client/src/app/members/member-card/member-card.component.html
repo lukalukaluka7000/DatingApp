@@ -9,12 +9,14 @@
                 </button>
             </li>
             <li class="list-inline-item">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" (click)="likeUser(member)">
                     <i class="fa fa-heart"></i>
                 </button>
             </li>
             <li class="list-inline-item">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" 
+                    routerLink='/members/{{member.username}}'
+                    [queryParams]= '{tab:3}'>
                     <i class="fa fa-envelope"></i>
                 </button>
             </li>
@@ -27,3 +29,6 @@
         <p class="card-text text-muted text-center">{{member.city}}</p>
     </div>
 </div>
+
+
+  <!-- (click)="messageThread(member.username)" -->

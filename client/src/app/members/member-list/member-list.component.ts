@@ -5,7 +5,6 @@ import { Member } from 'src/app/_models/member';
 import { Pagination } from 'src/app/_models/pagination';
 import { UserParams } from 'src/app/_models/userParams';
 import { MembersService } from 'src/app/_services/members.service';
-
 @Component({
   selector: 'app-member-list',
   templateUrl: './member-list.component.html',
@@ -22,15 +21,15 @@ export class MemberListComponent implements OnInit {
   genderList = [{ key: 'Males', value: 'male' }, { key: 'Females', value: 'female' }];
   genderAfterLogin: string;
 
-  constructor(private memberService : MembersService) {
-    
-   }
+  PAGE_SIZE:number = 5;
+  constructor(private memberService : MembersService) {}
 
   ngOnInit(): void {
     //this.retrieveMembers();
     //this.members$ = this.memberService.getMembers();
-    
+    this.memberService.setPageParams(1, this.PAGE_SIZE);
     this.userParams = this.memberService.getUserParams();
+    console.log(11223,this.userParams);
     this.loadMembers();
     
   }
@@ -44,8 +43,9 @@ export class MemberListComponent implements OnInit {
     this.userParams.pageNumber = event.page;
     this.loadMembers();
   }
-  resetFilters(){
+  resetFilters(){ // ali za this component
     this.userParams = this.memberService.resetUserParams();
+    this.memberService.setPageParams(1, this.PAGE_SIZE);
     this.loadMembers();
   }
   // retrieveMembers(){

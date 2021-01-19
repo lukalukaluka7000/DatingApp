@@ -1,10 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Member } from 'src/app/_models/member';
 import { MembersService } from 'src/app/_services/members.service';
 import {NgxGalleryOptions} from '@kolkov/ngx-gallery';
 import {NgxGalleryImage} from '@kolkov/ngx-gallery';
 import {NgxGalleryAnimation} from '@kolkov/ngx-gallery';
+import { ToastrService } from 'ngx-toastr';
+import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
+import { MessageService } from 'src/app/_services/message.service';
+import { Message } from 'src/app/_models/message';
 
 @Component({
   selector: 'app-member-detail',
@@ -13,22 +17,39 @@ import {NgxGalleryAnimation} from '@kolkov/ngx-gallery';
 })
 export class MemberDetailComponent implements OnInit {
   @Input() member! : Member;
-  username! : string;
+  @ViewChild('memberTabs', {static:true}) memberTabs : TabsetComponent;
+  activeTab : TabDirective;
+  //username! : string;
+
+  messages:Partial<Message[]> = [];
 
   galleryOptions: NgxGalleryOptions[] = [];
   galleryImages: NgxGalleryImage[] = [];
 
   constructor(private memberService : MembersService,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,
+    private router: Router,
+    private messageService:MessageService,
+    private toastr: ToastrService) { }
 
   ngOnInit(): void {
     // this.route.queryParams.subscribe(params => {
     // });
     let Username :string = this.route.snapshot.paramMap.get('username')!; //It tells TypeScript that even though something looks like it could be null, it can trust you that it's not:
-    this.memberService.getMember(Username).subscribe(memberReturned =>{
-      this.member = memberReturned;
-      this.galleryImages = this.getImages();
+    this.route.data.subscribe(data => {
+      this.member = data.member;
+      //data.galleryImages;
     })
+    // this.memberService.getMember(Username).subscribe(memberReturned =>{
+    //   this.member = memberReturned;
+    //   this.galleryImages = this.getImages();
+    // });
+
+    console.log(222, this.memberTabs);
+    this.route.queryParams.subscribe(params => {
+        params.tab ? this.selectTab(params.tab) : this.selectTab(0);
+    })
+
 
     this.galleryOptions=[
       {
@@ -40,6 +61,12 @@ export class MemberDetailComponent implements OnInit {
         preview:false
       }
     ]
+    this.galleryImages = this.getImages();
+  }
+  likeUser(member: Member) {
+    this.memberService.addLike(member.username).subscribe(() => { //!!nas post u ms nista ne vrati pa je ()
+      this.toastr.success("You have liked " + member.knownAs);
+    })
   }
   getImages(): NgxGalleryImage[] {
     const imageUrls = [];
@@ -54,5 +81,19 @@ export class MemberDetailComponent implements OnInit {
     }
     return imageUrls;
   }
-
+  loadMessageThread(){
+    this.messageService.getMessageThread(this.member.username).subscribe(messages => {
+      this.messages = messages;
+    });
+  }
+  onTabActivated(data: TabDirective){
+    this.activeTab = data;
+    if(this.activeTab.heading === 'Messages' && this.messages.length===0){
+      this.loadMessageThread();
+    }
+  }
+  selectTab(tabId:number){
+    this.memberTabs.tabs[tabId].active=true;
+  }
+  
 }

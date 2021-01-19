@@ -5,11 +5,10 @@ export class UserParams{
     minAge: number = 18;
     maxAge: number = 99;
     pageNumber: number = 1;
-    pageSize: number = 5;
+    pageSize: number = 3;
     orderBy: string = 'lastActive';
 
     constructor(currentUser: User){
-        console.log("macijajajajajajja", currentUser.gender);
         if(currentUser.gender === 'male'){
             this.gender = 'female';
         }
@@ -18,5 +17,8 @@ export class UserParams{
         }
 
     }
-
+    setPageParam(pn:number, ps:number){
+        this.pageSize=ps;
+        this.pageNumber=pn;
+    }
 }

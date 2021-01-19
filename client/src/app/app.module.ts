@@ -27,6 +27,12 @@ import { LoadingInterceptor } from './_interceptors/loading.interceptor';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 import { TextInputComponent } from './_forms/text-input/text-input.component';
 import { DateInputComponent } from './_forms/date-input/date-input.component';
+import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { HaveRoleDirective } from './_directives/have-role.directive';
+import { UserManagementComponent } from './admin/user-management/user-management.component';
+import { EditRoleModalContentComponent } from './_modals/edit-role-modal-content/edit-role-modal-content.component';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,7 +51,11 @@ import { DateInputComponent } from './_forms/date-input/date-input.component';
     PhotoEditorComponent,
     TextInputComponent,
     DateInputComponent,
-    
+    MemberMessagesComponent,
+    AdminPanelComponent,
+    HaveRoleDirective,
+    UserManagementComponent,
+    EditRoleModalContentComponent
   ],
   imports: [
     BrowserModule,
@@ -55,13 +65,14 @@ import { DateInputComponent } from './_forms/date-input/date-input.component';
     FormsModule ,
     ReactiveFormsModule,
     SharedModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi:true},
     {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi:true},
-
+    BsModalService,
+    BsModalRef,
   ],
   bootstrap: [AppComponent]
 })
