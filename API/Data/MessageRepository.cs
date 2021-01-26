@@ -22,6 +22,34 @@ namespace API.Data
             this.context = context;
             this.mapper = mapper;
         }
+
+        public void AddGroup(Group group)
+        {
+            context.Groups.Add(group);
+        }
+        public async Task<Connection> GetConnection(string connectionId)
+        {
+            return await context.Connections.FindAsync(connectionId);
+        }
+        public async Task<Group> GetMessageGroup(string groupName)
+        {
+            return await context.Groups
+                .Include(x => x.Connections)
+                .FirstOrDefaultAsync(x => x.Name == groupName);
+        }
+        public void RemoveConnection(Connection connection)
+        {
+            context.Connections.Remove(connection);
+        }
+        public async Task<Group> GetGroupForConnection(string connectionId)
+        {
+            return await context.Groups
+                .Include(c => c.Connections)
+                .Where(c => c.Connections.Any(x => x.ConnectionId == connectionId))
+                .FirstOrDefaultAsync();
+        }
+
+
         public void AddMessage(Message message)
         {
             this.context.Messages.Add(message);
@@ -32,6 +60,8 @@ namespace API.Data
             context.Messages.Remove(message);
         }
 
+        
+
         public async Task<Message> GetMessage(int id)
         {
             return await context.Messages
@@ -39,6 +69,8 @@ namespace API.Data
                 .Include(r => r.Recipient)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        
 
         public async Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams)
         {
@@ -79,7 +111,7 @@ namespace API.Data
             {
                 foreach (var mess in unReadMessages)
                 {
-                    mess.DateRead = DateTime.Now;
+                    mess.DateRead = DateTime.UtcNow;
                 }
                 await context.SaveChangesAsync(); //ako se promijeni, doli return svakako vrati
             }
@@ -87,6 +119,8 @@ namespace API.Data
             //nema Project<> jer vec imam ToList
             return mapper.Map<IEnumerable<MessageDTO>>(messages);
         }
+
+        
 
         public async Task<bool> SaveAllAsync()
         {

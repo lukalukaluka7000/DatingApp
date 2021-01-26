@@ -49,7 +49,10 @@
 
 <div class="row">
     <!-- <div *ngFor="let membar of members$ | async" class="col-2"> -->
-    <div *ngFor="let membar of members" class="col-2">
+    <div *ngFor="let membar of members" 
+        class="col-2" 
+        [hidden]="(accountService.currentUser$ | async).username === membar.username"
+        >
         <app-member-card [member]="membar" ></app-member-card>
     </div>
 </div>
@@ -65,4 +68,31 @@
         firstText="&laquo;" 
         lastText="&raquo;">
     </pagination>
+</div>
+
+
+<div class="row">
+    <div *ngFor="let liveUser of (currentLiveMessages | keyvalue)">
+        <p>{{liveUser.key | titlecase}}:</p>
+        <ul *ngFor="let liveUserMsgs of liveUser.value">
+            <li>{{liveUserMsgs}}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card-footer">
+    <form #messageForm="ngForm" (ngSubmit)="sendMessage(messageContent)" autocomplete="off">
+        <div class="input-group">
+            <input 
+                name="messageContent"
+                required
+                [(ngModel)]="messageContent"
+                type="text" 
+                class="form-control input-sm" 
+                placeholder="Send a live chat message">
+            <div class="input-group-append">
+                <button [disabled]="!messageForm.valid" class="btn btn-primary" type="submit">Send</button>
+            </div>
+        </div>
+    </form>
 </div>

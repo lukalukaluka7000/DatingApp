@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using API.Extensions;
 using API.Middleware;
+using API.SignalR;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace API
 {
@@ -39,7 +41,10 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
+            app.UseCors(x => x.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithOrigins("https://localhost:4200"));
             
             //app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod());
 
@@ -49,6 +54,11 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<PresenceHub>("hubs/presence");
+                endpoints.MapHub<MessageHub>("hubs/message", options => {
+                    options.Transports = HttpTransportType.WebSockets;
+                });
+                endpoints.MapHub<DirectMessageHub>("hubs/directMessage");
             });
         }
     }

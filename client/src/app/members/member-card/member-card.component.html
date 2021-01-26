@@ -23,7 +23,15 @@
         </ul>
     </div>
     <div class="card-body p-1">
-        <h6 class="card-title text-center mb-1"><i class="fa fa-user mr-2"></i>
+        <h6 class="card-title text-center mb-1">
+            <!-- <ul *ngFor="let us of presence.currentUsers$ | async">
+                <li>{{us}}</li>
+            </ul> -->
+            <!-- <p>{{member.username}}</p> -->
+            <span [class.is-online]="(presence.currentUsers$ | async).includes(member.username)">
+                <i class="fa fa-user mr-2"></i>
+            </span>
+
             {{member.knownAs}} ({{member.age}})
         </h6>
         <p class="card-text text-muted text-center">{{member.city}}</p>

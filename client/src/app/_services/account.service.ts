@@ -4,6 +4,8 @@ import { map } from 'rxjs/operators';
 import { User } from '../_models/user';
 import { ReplaySubject } from 'rxjs';
 import { isArray } from 'ngx-bootstrap/chronos';
+import { PresenceService } from './presence.service';
+import { MessageHubService } from './message-hub.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class AccountService {
   private currentUserSource = new ReplaySubject<User>(1);
   currentUser$ = this.currentUserSource.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private presence:PresenceService, private messageHub : MessageHubService) { }
 
   login(model: any) {
     return this.http.post(this.baseUrl + 'account/login', model).pipe(
@@ -22,6 +24,8 @@ export class AccountService {
         const user = response;
         if (user) {
           this.setCurrentUser(user);
+          this.presence.createHubConnection(user);
+          this.messageHub.createHubConnection(user);
         }
       })
     )
@@ -32,6 +36,8 @@ export class AccountService {
       map((user: any) => {
         if (user) {
           this.setCurrentUser(user);
+          this.presence.createHubConnection(user);
+          this.messageHub.createHubConnection(user);
         }
       })
     )
@@ -41,14 +47,16 @@ export class AccountService {
     user.roles = [];
     const roles : string[] = this.getDecodedToken(user.token).role;
     isArray(roles) ? user.roles = roles : user.roles.push(roles);
-    console.log("AAA",user.roles);
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
   }
 
   logout() : void {
+    const username = localStorage.getItem("username");
     localStorage.removeItem('user');
     this.currentUserSource.next(null!);
+    this.presence.stopHubConnection();
+    this.messageHub.stopHubConnection();
   }
   getDecodedToken (token: string) {
     

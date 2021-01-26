@@ -3,9 +3,9 @@ using API.Entities;
 using API.Helpers;
 using API.Interfaces;
 using API.Services;
+using API.SignalR;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +47,9 @@ namespace API.Extensions
             AllServices.AddScoped<IPhotoService, PhotoService>();
             AllServices.AddScoped<LogUserActivity>();
             //sa jos tria injectat ovaj servis negdi
+            AllServices.AddSignalR();
+            AllServices.AddSingleton<PresenceTracker>();
+            AllServices.AddSingleton<LiveChat>();
             return AllServices;
         }
     }

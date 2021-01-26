@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Extensions
 {
@@ -26,6 +27,24 @@ namespace API.Extensions
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
+
+                    //set signalR to use query string to pass jwt, unlike api controlers
+                    options.Events = new JwtBearerEvents
+                    {
+                        
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/hubs"))
+                                context.Token = accessToken;
+
+                            return Task.CompletedTask;
+                        }
+                    };
+
                 });
             AllServices.AddAuthorization(opt =>
             {

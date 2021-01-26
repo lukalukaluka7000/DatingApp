@@ -3,9 +3,11 @@ using API.Entities;
 using API.Extensions;
 using API.Helpers;
 using API.Interfaces;
+using API.SignalR;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +22,25 @@ namespace API.Controllers
         private readonly IUserRepository userRepository;
         private readonly IMessageRepository messageRepository;
         private readonly IMapper mapper;
+        private readonly IHubContext<MessageHub> messageHubContext;
 
         public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository,
-            IMapper mapper)
+            IMapper mapper, IHubContext<MessageHub> messageHubContext)
         {
             this.userRepository = userRepository;
             this.messageRepository = messageRepository;
             this.mapper = mapper;
+            this.messageHubContext = messageHubContext;
+        }
+
+        [HttpPost("servermessage")]
+        public IActionResult Post()
+        {
+            //Broadcast message to client  
+            messageHubContext.Clients.All.SendAsync("Send", "Hello from the hub server at " +
+                DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
+
+            return Ok();
         }
 
         [HttpPost]

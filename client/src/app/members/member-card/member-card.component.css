@@ -42,6 +42,15 @@
 .animate {
     transition: all 0.3s ease-in-out;
 } 
+@keyframes fa-blink {
+    0% {opacity: 1;}
+    100% {opacity: 0.4;}
+}
+
+.is-online {
+    animation: fa-blink 1.5s linear infinite;
+    color: rgb(11, 172, 5);
+}
 /* .card:hover img {
     transform: scale(1.2, 1.2);
     transition-duration: 500ms;
