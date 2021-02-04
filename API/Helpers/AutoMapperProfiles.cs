@@ -27,7 +27,8 @@ namespace API.Helpers
                     src.Recipient.Photos.FirstOrDefault(x => x.IsMain == true).Url))
                 .ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src =>
                     src.Sender.Photos.FirstOrDefault(x => x.IsMain == true).Url));
-            CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc)); // when we retrun datetime to client, we gonna have Z on the end of it
+            //nema lave ovo vise potribe jer u datacontextu imas static extension za modelbuilder
+            //CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc)); // when we retrun datetime to client, we gonna have Z on the end of it
         }
     }
 }

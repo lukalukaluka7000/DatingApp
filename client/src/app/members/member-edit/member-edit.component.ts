@@ -6,6 +6,7 @@ import { take } from 'rxjs/operators';
 import { Member } from 'src/app/_models/member';
 import { User } from 'src/app/_models/user';
 import { AccountService } from 'src/app/_services/account.service';
+import { ConfirmService } from 'src/app/_services/confirm.service';
 import { DialogService } from 'src/app/_services/dialog.service';
 import { MembersService } from 'src/app/_services/members.service';
 
@@ -27,7 +28,8 @@ export class MemberEditComponent implements OnInit {
   constructor(private accountService : AccountService,
     private memberService : MembersService,
     private toastrService:ToastrService,
-    private dialogService: DialogService) { }
+    private dialogService: DialogService,
+    private confirmService: ConfirmService) { }
 
   ngOnInit(): void {
     this.accountService.currentUser$.pipe(take(1)).subscribe(user => {
@@ -45,17 +47,24 @@ export class MemberEditComponent implements OnInit {
   updateMember(){
     console.log("member updating");
     console.log(this.member);
-    this.memberService.updateMember(this.member).subscribe(() => {
-      this.toastrService.success("Profile updated");
-      this.editForm.reset(this.member);
-    });
+
+    this.confirmService.openModalWithComponent("Saving Changes", "Are you sure?").subscribe(result => {
+      if(result){
+        this.memberService.updateMember(this.member).subscribe(() => {
+          this.toastrService.success("Profile updated");
+          this.editForm.reset(this.member);
+        });
+      }
+    })
+    
 
     
     
   }
   canDeactivate(): Observable<boolean> | boolean{
     if(this.editForm.dirty){
-      return this.dialogService.confirm('Discard changes made?');
+      //return this.dialogService.confirm('Discard changes made?');
+      return this.confirmService.openModalWithComponent('You edited your profile', "Do you want to proceed?");
     }
     return true;
   }

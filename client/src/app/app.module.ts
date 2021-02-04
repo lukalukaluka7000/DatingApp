@@ -33,6 +33,7 @@ import { HaveRoleDirective } from './_directives/have-role.directive';
 import { UserManagementComponent } from './admin/user-management/user-management.component';
 import { EditRoleModalContentComponent } from './_modals/edit-role-modal-content/edit-role-modal-content.component';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { ConfirmDialogComponent } from './_modals/confirm-dialog/confirm-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -55,7 +56,8 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
     AdminPanelComponent,
     HaveRoleDirective,
     UserManagementComponent,
-    EditRoleModalContentComponent
+    EditRoleModalContentComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,

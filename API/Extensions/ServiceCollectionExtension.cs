@@ -20,9 +20,10 @@ namespace API.Extensions
         {
             AllServices.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             AllServices.AddScoped<ITokenService, TokenService>();
-            AllServices.AddScoped<IUserRepository, UserRepository>();
-            AllServices.AddScoped<ILikesRepository, LikesRepository>();
-            AllServices.AddScoped<IMessageRepository, MessageRepository>();
+            AllServices.AddScoped<IUnitOfWork, UnitOfWork>();
+            //AllServices.AddScoped<IUserRepository, UserRepository>();
+            //AllServices.AddScoped<ILikesRepository, LikesRepository>();
+            //AllServices.AddScoped<IMessageRepository, MessageRepository>();
             
             AllServices.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
             

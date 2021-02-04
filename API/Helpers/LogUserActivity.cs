@@ -24,10 +24,10 @@ namespace API.Helpers
             string username = resultContext.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
             int id = int.Parse( resultContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             //service locator pattern
-            var repo = resultContext.HttpContext.RequestServices.GetService<IUserRepository>();
-            var user = await repo.GetUserByIdAsync(id);
+            var uow = resultContext.HttpContext.RequestServices.GetService<IUnitOfWork>();
+            var user = await uow.userRepository.GetUserByIdAsync(id);
             user.LastActive = DateTime.Now;
-            await repo.SaveAllAsync();
+            await uow.SaveChanges();
         }
     }
 }

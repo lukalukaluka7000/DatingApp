@@ -74,17 +74,24 @@ namespace API.Data
 
         public async Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams)
         {
-            var query = context.Messages.OrderByDescending(m => m.MessageSent).AsQueryable();
+            var query = context
+                .Messages
+                
+                .OrderByDescending(m => m.MessageSent)
+                .ProjectTo<MessageDTO>(mapper.ConfigurationProvider)
+                .AsQueryable();
+
             query = messageParams.Container switch
             {
-                "Inbox" => query.Where(u => u.Recipient.UserName == messageParams.Username && u.RecipientDeleted==false),
-                "Outbox" => query.Where(u => u.Sender.UserName == messageParams.Username && u.SenderDeleted == false),
-                _ => query.Where(u => u.Recipient.UserName == messageParams.Username && u.DateRead == null &&
+                "Inbox" => query.Where(u => u.RecipientUsername == messageParams.Username &&  u.RecipientDeleted==false),
+                "Outbox" => query.Where(u => u.SenderUsername == messageParams.Username && u.SenderDeleted == false),
+                _ => query.Where(u => u.RecipientUsername == messageParams.Username && u.DateRead == null &&
                     u.RecipientDeleted==false)
             };
-            var projectedSource = mapper.ProjectTo<MessageDTO>(query);
+
+            //var projectedSource = mapper.ProjectTo<MessageDTO>(query);
             //var mes = query.ProjectTo<MessageDTO>(mapper.ConfigurationProvider);
-            return await API.Helpers.PagedList<MessageDTO>.CreateAsync(projectedSource, 
+            return await API.Helpers.PagedList<MessageDTO>.CreateAsync(query, 
                 messageParams.PageNumber, 
                 messageParams.PageSize);
         }
@@ -92,20 +99,21 @@ namespace API.Data
         public async Task<IEnumerable<MessageDTO>> GetMessageThread(string currentUsername, string recipientUsername)
         {
             var messages = await context.Messages
-                .Include(u => u.Sender).ThenInclude(p => p.Photos)
-                .Include(u => u.Recipient).ThenInclude(p => p.Photos)
-                .Where(m => 
-                    m.Sender.UserName == currentUsername && m.SenderDeleted==false &&
-                    m.Recipient.UserName == recipientUsername 
+                //.Include(u => u.Sender).ThenInclude(p => p.Photos)
+                //.Include(u => u.Recipient).ThenInclude(p => p.Photos)
+                .Where(m =>
+                    m.Sender.UserName == currentUsername && m.SenderDeleted == false &&
+                    m.Recipient.UserName == recipientUsername
                     ||
-                    m.Sender.UserName == recipientUsername && 
+                    m.Sender.UserName == recipientUsername &&
                     m.Recipient.UserName == currentUsername && m.RecipientDeleted == false)
                 .OrderByDescending(m => m.MessageSent)
+                .ProjectTo<MessageDTO>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
             // mark messages as read, we not projecting so include photos + tolistasync
             var unReadMessages = messages.Where(m => m.DateRead == null && 
-                m.Recipient.UserName == currentUsername).ToList(); // ja sam primatelj, ovo bi skuzia sam u dizajnu
+                m.RecipientUsername == currentUsername).ToList(); // ja sam primatelj, ovo bi skuzia sam u dizajnu
 
             if (unReadMessages.Any())
             {
@@ -113,18 +121,12 @@ namespace API.Data
                 {
                     mess.DateRead = DateTime.UtcNow;
                 }
-                await context.SaveChangesAsync(); //ako se promijeni, doli return svakako vrati
+                //sad je ovo posao za unitofwork a ne repo, pa saveamo tamo odakle zovemo, a toje u directmessageHUB
+                //await context.SaveChangesAsync(); //ako se promijeni, doli return svakako vrati
             }
 
             //nema Project<> jer vec imam ToList
-            return mapper.Map<IEnumerable<MessageDTO>>(messages);
-        }
-
-        
-
-        public async Task<bool> SaveAllAsync()
-        {
-            return await context.SaveChangesAsync() > 0;
+            return messages;
         }
     }
 }

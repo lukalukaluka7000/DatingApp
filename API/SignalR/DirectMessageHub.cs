@@ -13,20 +13,17 @@ namespace API.SignalR
 {
     public class DirectMessageHub : Hub
     {
-        private readonly IMessageRepository messageRepository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-        private readonly IUserRepository userRepository;
         private readonly PresenceTracker tracker;
         private readonly IHubContext<PresenceHub> presenceHub;
 
-        public DirectMessageHub(IMessageRepository messageRepository, IMapper mapper,
-            IUserRepository userRepository,
+        public DirectMessageHub(IUnitOfWork unitOfWork, IMapper mapper,
             PresenceTracker tracker,
             IHubContext<PresenceHub> presenceHub)
         {
-            this.messageRepository = messageRepository;
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;
-            this.userRepository = userRepository;
             this.tracker = tracker;
             this.presenceHub = presenceHub;
         }
@@ -45,7 +42,11 @@ namespace API.SignalR
             var returnedUpdatedGroupWithConnection = await AddToGroup(groupName);
             await Clients.Group(groupName).SendAsync("groupUpdated", returnedUpdatedGroupWithConnection);
 
-            var messages = messageRepository.GetMessageThread(usernameFirst, usernameSecond);
+            var messages = unitOfWork.messageRepository.GetMessageThread(usernameFirst, usernameSecond);
+            if (unitOfWork.HasChanges())
+            {
+                await unitOfWork.SaveChanges();
+            }
 
             //now pass those messages to the group i onda tamo u hubu u angularu to docekas
             await Clients.Groups(groupName).SendAsync("receiveCurrentDMs", messages);
@@ -66,9 +67,9 @@ namespace API.SignalR
             var senderUsername = Context.User.FindFirst(ClaimTypes.Name)?.Value;
             if (senderUsername == createMessageDto.RecipientUsername.ToLower())
                 throw new HubException("You cannot send messages to yourself!");
-            var senderUser = await userRepository.GetUserByUsernameAsync(senderUsername);
+            var senderUser = await unitOfWork.userRepository.GetUserByUsernameAsync(senderUsername);
 
-            var recipientUser = await userRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername);
+            var recipientUser = await unitOfWork.userRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername);
             if (recipientUser == null) throw new HubException("User not found");
 
             var message = new Message
@@ -87,7 +88,7 @@ namespace API.SignalR
             
 
             var groupName = ConstructGroupName(senderUsername, recipientUser.UserName);
-            var group = await messageRepository.GetMessageGroup(groupName);
+            var group = await unitOfWork.messageRepository.GetMessageGroup(groupName);
             
             // ako postoji konekcija, a ako ne kreiraj je
             if(group.Connections.Any(x => x.Username == recipientUser.UserName))
@@ -105,10 +106,10 @@ namespace API.SignalR
                 }
             }
 
-            messageRepository.AddMessage(message);
+            unitOfWork.messageRepository.AddMessage(message);
             //await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            if (await messageRepository.SaveAllAsync())
+            if (await unitOfWork.SaveChanges())
             {
                 await Clients.Group(groupName).SendAsync("newMessageReceived", mapper.Map<MessageDTO>(message));
             }
@@ -121,16 +122,16 @@ namespace API.SignalR
         }
         private async Task<Group> AddToGroup(string groupName)
         {
-            var group = await messageRepository.GetMessageGroup(groupName);
+            var group = await unitOfWork.messageRepository.GetMessageGroup(groupName);
             var connection = new Connection(Context.ConnectionId, Context.User.FindFirst(ClaimTypes.Name)?.Value);
             if (group == null)
             {
                 group = new Group(groupName);
-                messageRepository.AddGroup(group);
+                unitOfWork.messageRepository.AddGroup(group);
             }
             group.Connections.Add(connection);
 
-            if(await messageRepository.SaveAllAsync())
+            if(await unitOfWork.SaveChanges())
             {
                 return group;
             }
@@ -139,12 +140,12 @@ namespace API.SignalR
         }
         private async Task<Group> RemoveFromMessageGroup()
         {
-            var group = await messageRepository.GetGroupForConnection(Context.ConnectionId);
+            var group = await unitOfWork.messageRepository.GetGroupForConnection(Context.ConnectionId);
             if (group != null)
             {
                 var connection = group.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
-                messageRepository.RemoveConnection(connection);
-                if(await messageRepository.SaveAllAsync())
+                unitOfWork.messageRepository.RemoveConnection(connection);
+                if(await unitOfWork.SaveChanges())
                 {
                     return group;
                 }

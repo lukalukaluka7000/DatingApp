@@ -10,9 +10,8 @@ namespace API.Interfaces
 {
     public interface IUserRepository
     {
+        Task<string> GetUserGender(string username);
         void Update(AppUser user);
-
-        Task<bool> SaveAllAsync();
 
         Task<IEnumerable<AppUser>> GetUsersAsync();
 
