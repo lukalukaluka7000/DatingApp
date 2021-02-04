@@ -12,11 +12,12 @@ import { AccountService } from '../_services/account.service';
 export class NavComponent implements OnInit {
   model: any = {}
   photourl: string = '';
+  hasAdminRole: boolean = false;
   constructor(public accountService: AccountService,
     private router: Router,
     private toastr: ToastrService) {}
   
-
+    
   ngOnInit() {
     // this.accountService.currentUser$.subscribe((user: User) => {
     //   this.photourl = user.photoUrl;
@@ -37,6 +38,9 @@ export class NavComponent implements OnInit {
   login() {
     this.accountService.login(this.model).subscribe(response => {
       this.router.navigate(['/members']);
+
+      const user : User = JSON.parse(localStorage.getItem('user') || '{}');
+      this.hasAdminRole = true ? user.roles?.includes("Admin") : false;
     });
   }
 

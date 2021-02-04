@@ -26,6 +26,7 @@ export class HaveRoleDirective implements OnInit {
       this.viewContainerRef.clear();
       return;
     }
+    
     if (this.user?.roles.some(r => this.appHaveRole.includes(r))){
       this.viewContainerRef.createEmbeddedView(this.adminTemplateRef);
     }

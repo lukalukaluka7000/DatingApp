@@ -16,13 +16,13 @@ namespace API.Controllers
     public class AdminController : BaseApiController
     {
         private readonly UserManager<AppUser> userManager;
-        private readonly IUserRepository userRepository;
+        private readonly IUnitOfWork unitOfWork;
 
         public AdminController(UserManager<AppUser> userManager,
-            IUserRepository userRepository)
+            IUnitOfWork unitOfWork)
         {
             this.userManager = userManager;
-            this.userRepository = userRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         [Authorize(Policy = "RequireAdminRole")]
@@ -57,7 +57,7 @@ namespace API.Controllers
             var listOfSelectedRoles = roles.Split(",");
 
             //userManager.FindByNameAsync()
-            var userToEdit = await userRepository.GetUserByUsernameAsync(usernameToEdit);
+            var userToEdit = await unitOfWork.userRepository.GetUserByUsernameAsync(usernameToEdit);
             var currentUserRoles = await userManager.GetRolesAsync(userToEdit);
 
             if (userToEdit == null) return BadRequest("Cannot find User");
