@@ -21,6 +21,7 @@ namespace API.Data
         public IUserRepository userRepository => new UserRepository(context, mapper);
 
         public ILikesRepository likesRepository => new LikesRepository(context);
+        public IPhotoRepository photoRepository => new PhotoRepository(context);
 
         public bool HasChanges()
         {

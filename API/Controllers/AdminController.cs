@@ -38,16 +38,43 @@ namespace API.Controllers
                     s.Id,
                     Username = s.UserName,
                     Roles = s.UserRoles.Select(r => r.Role.Name).ToList()
-                }).ToListAsync();
+                }) .ToListAsync();
             return Ok(users);
         }
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photos-to-moderate")]
-        public ActionResult<string> GetPhotosForModeration()
+        public async Task<ActionResult> GetPhotosForModeration()
         {
-            return Ok("Only moderators and admins can see this");
+            var unApprovedPhotos = await unitOfWork.photoRepository.GetAllUnApprovedPhotos();
+            if (unApprovedPhotos == null)
+                return BadRequest("Failed to get photos for admin to moderate on api");
+
+            return Ok(unApprovedPhotos);
         }
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("approve-photo/{photoId}")]
+        public async Task<ActionResult<string>> ApprovePhoto(int photoId)
+        {
+            bool success = await unitOfWork.photoRepository.ApprovePhoto(photoId);
+            
+            if(success && await unitOfWork.SaveChanges())
+                return Ok($"Photo with id {photoId} successfuly approved");
+
+            return BadRequest("Failed to approve photo by admin");
+        }
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("reject-photo/{photoId}")]
+        public async Task<ActionResult<string>> RejectPhoto(int photoId)
+        {
+            bool rejected = await unitOfWork.photoRepository.RejectPhoto(photoId);
+
+            if (rejected && await unitOfWork.SaveChanges())
+                return Ok($"Photo with id {photoId} successfuly rejected");
+
+            return BadRequest("Failed to reject photo by admin");
+        }
+        
 
         // edit-roles/lisa?roles=Moderator,Member
         [Authorize(Policy = "EditUsersRoles")]

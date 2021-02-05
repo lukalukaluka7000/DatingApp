@@ -34,6 +34,7 @@ import { UserManagementComponent } from './admin/user-management/user-management
 import { EditRoleModalContentComponent } from './_modals/edit-role-modal-content/edit-role-modal-content.component';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ConfirmDialogComponent } from './_modals/confirm-dialog/confirm-dialog.component';
+import { PhotoManagementComponent } from './admin/photo-management/photo-management.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -57,7 +58,8 @@ import { ConfirmDialogComponent } from './_modals/confirm-dialog/confirm-dialog.
     HaveRoleDirective,
     UserManagementComponent,
     EditRoleModalContentComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    PhotoManagementComponent
   ],
   imports: [
     BrowserModule,

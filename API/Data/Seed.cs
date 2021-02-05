@@ -22,6 +22,9 @@ namespace API.Data
             var users = JsonSerializer.Deserialize<List<AppUser>>(userData);
             if (users == null) return;
 
+            
+
+
             var roles = new List<AppRole>()
             {
                 new AppRole() {Name="Member"},
@@ -44,6 +47,12 @@ namespace API.Data
                 //context.Users.Add(user);
                 await userManager.CreateAsync(user, "Pa$$w0rd");
                 await userManager.AddToRoleAsync(user, "Member");
+               
+                // set all starting pictures as approved
+                foreach (var photo in user.Photos)
+                {
+                    photo.IsApproved = true;
+                }
             }
 
             var admin = new AppUser

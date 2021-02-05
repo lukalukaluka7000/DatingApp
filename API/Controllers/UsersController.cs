@@ -53,7 +53,7 @@ namespace API.Controllers
         [HttpGet("{username}", Name="FetchUser")]
         public async Task<ActionResult<MemberDTO>> GetUser(string username)
         {
-            var user = await unitOfWork.userRepository.GetMemberAsync(username);
+            var user = await unitOfWork.userRepository.GetMemberAsync(username, User.FindFirst(ClaimTypes.Name)?.Value);
             
             //var usersoReturn = mapper.Map<MemberDTO>(user);
 
@@ -94,10 +94,7 @@ namespace API.Controllers
                 Url = uploadResult.SecureUrl.ToString()
             };
             
-            if(user.Photos.Count == 0)
-            {
-                photo.IsMain = true;
-            }
+            
             //4 api saves photoUrl and public ID to db
             user.Photos.Add(photo); //dodali pravi photo
             //clientu treba samo photoDTO najs

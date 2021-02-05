@@ -83,12 +83,13 @@ export class MemberDetailComponent implements OnInit, OnDestroy {
     const imageUrls = [];
     
     for (const photo of this.member.photos) {
-      console.log(photo);
-      imageUrls.push({
-        small: photo?.url,
-        medium: photo?.url,
-        big: photo?.url
-      })
+      if (photo.isApproved) {
+        imageUrls.push({
+          small: photo?.url,
+          medium: photo?.url,
+          big: photo?.url
+        })
+      }
     }
     return imageUrls;
   }

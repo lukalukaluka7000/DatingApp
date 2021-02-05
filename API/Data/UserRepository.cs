@@ -26,12 +26,30 @@ namespace API.Data
         }
 
 
-        public async Task<MemberDTO> GetMemberAsync(string username)
+        public async Task<MemberDTO> GetMemberAsync(string username, string currentUserName)
         {
-            return await _context.Users
-                .Where(x => x.UserName == username)
-                .ProjectTo<MemberDTO>(mapper.ConfigurationProvider)
-                .SingleOrDefaultAsync();
+            if (currentUserName == username)
+            {
+                return await _context.Users
+                    .Where(x => x.UserName == username)
+                    .ProjectTo<MemberDTO>(mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync();
+            }
+            else
+            {
+                var photos = _context.Photos
+                    .Where(f => f.AppUser.UserName == username && f.IsApproved == true)
+                    .ProjectTo<PhotoDTO>(mapper.ConfigurationProvider)
+                    .AsQueryable();
+
+                var member = await _context.Users
+                    .Where(x => x.UserName == username)
+                    .ProjectTo<MemberDTO>(mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync();
+
+                member.Photos = await photos.ToListAsync();
+                return member;
+            }
         }
 
         public async Task<IEnumerable<MemberDTO>> GetMembersAsync()

@@ -1,0 +1,14 @@
+<div class="row">
+    <div *ngIf="unApprovedPhotos.length === 0">
+        No photos to approve currently
+    </div>
+    <div class="col-2" *ngFor="let photo of unApprovedPhotos">
+        <img [ngStyle]="{'opacity': !photo.isApproved ? '0.2' : '1.0'}" src="{{photo.url}}" alt="{{photo.url}}"
+            class="img-thumbnail p-1">
+        <div *ngIf="!photo.isApproved" class="centered">Waiting approval</div>
+        <div class="text-center">
+            <button (click)="ApprovePhoto(photo)" class="btn btn-sm btn-outline-primary btn-inline">Approve</button>
+            <button (click)="RejectPhoto(photo)" class="btn btn-sm btn-danger ">Reject</button>
+        </div>
+    </div>
+</div>

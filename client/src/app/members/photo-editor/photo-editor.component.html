@@ -1,17 +1,16 @@
 <div class="row">
     <div class="col-2" *ngFor="let photo of member.photos">
-        <img src="{{photo.url}}" alt="{{photo.url}}" class="img-thumbnail p-1">
-        <div class="text-center">
-            <button 
-                (click)="setMainPhotoEditor(photo)"
-                [disabled]="photo.isMain===true"  
-                class="btn btn-sm btn-outline-primary">Main</button>
-            <button 
-                (click)="deletePhotoEditor(photo.id)"
-                [disabled]="photo.isMain===true" 
-                class="btn btn-sm btn-danger"
-                [class.active]="photo.isMain===false"><i class="fa fa-trash"></i></button>
-        </div>
+        
+            <img [ngStyle]="{'opacity': !photo.isApproved ? '0.2' : '1.0'}" src="{{photo.url}}" alt="{{photo.url}}" class="img-thumbnail p-1">
+            <div *ngIf="!photo.isApproved" class="centered">Waiting approval</div>
+            <div class="text-center">
+                <button (click)="setMainPhotoEditor(photo)" [disabled]="photo.isMain===true || photo.isApproved===false"
+                    class="btn btn-sm btn-outline-primary btn-inline">Main</button>
+                <button (click)="deletePhotoEditor(photo.id)" [disabled]="photo.isMain===true"
+                    class="btn btn-sm btn-danger " [class.active]="photo.isMain===false"><i
+                        class="fa fa-trash"></i></button>
+            </div>
+        
     </div>
 </div>
 

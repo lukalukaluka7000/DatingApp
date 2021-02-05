@@ -19,9 +19,13 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError(error => {
-        console.log("error ak", error);
+        
         if (error) {
+          console.log("error ak", error);
           switch (error.status) {
+            case 200:
+              //todo: handle error Unexpected token P in JSON at position 0 at JSON.parse
+              break;
             case 400:
               if (error.error.errors) {
                 const modalStateErrors = [];

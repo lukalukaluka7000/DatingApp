@@ -1,7 +1,7 @@
 img.img-thumbnail {
     height: 100px;
     min-width: 100px !important;
-    margin-bottom: 2px;
+    /* margin-bottom: 2px; */
 }
 
 .nv-file-over{
@@ -18,4 +18,29 @@ input[type=file]{
 .btn-outline-primary:not([disabled]):hover{
     background-color: lightgreen;
     color:red;
+}
+.btn-inline {
+    width: calc(50% + 3px);
+    display: inline-block;
+    margin: 0 auto;
+}
+
+
+
+.container {
+    /* position: relative; */
+    text-align: center;
+}
+  
+  /* Centered text */
+.centered {
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    color: red;
+}
+img{
+    opacity:0.4;
+    /* width: 190px;     */
 }
