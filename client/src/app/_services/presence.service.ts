@@ -17,7 +17,7 @@ import { MessageService } from './message.service';
 export class PresenceService {
   hubUrl = environment.hubUrl;
   private hubConnection: HubConnection;
-  currentUsersSubject = new BehaviorSubject<UserMessages[]>([]);
+  currentUsersSubject = new BehaviorSubject<string[]>([]);
   currentUsers$ = this.currentUsersSubject.asObservable();
 
   currentUsers : string[] = [];
@@ -37,37 +37,26 @@ export class PresenceService {
     
     
 
-    this.hubConnection.on('userConnected', (username, numberUnreadMessages) => {
+    this.hubConnection.on('userConnected', (username) => {
       this.toastr.info(username + ' has connected');
-      console.log("kerum00000", username, numberUnreadMessages);
+      console.log("kerum00000", username);
 
-      this.currentUsers$.pipe(take(1)).subscribe( (UsernamesAndMessages : UserMessages[]) => {
-        console.log("kerum", UsernamesAndMessages);
-        const userMessagesToAdd : UserMessages = { username: username, unreadMsgs: numberUnreadMessages };
-        
-        this.currentUsersSubject.next([...UsernamesAndMessages, userMessagesToAdd])
+      this.currentUsers$.pipe(take(1)).subscribe( (usernames : string[]) => {
+        console.log("kerum", usernames);
+
+        this.currentUsersSubject.next([...usernames, username]);
       })
     });
 
     this.hubConnection.on('userDisconnected', username => {
       this.toastr.warning(username + ' has disconnected');
-      this.currentUsers$.pipe(take(1)).subscribe((UserNameAndMessages : UserMessages[]) => {
-        this.currentUsersSubject.next([...UserNameAndMessages.filter( UserMessageObject => UserMessageObject.username !== username)])
+      this.currentUsers$.pipe(take(1)).subscribe((usernames : string[]) => {
+        this.currentUsersSubject.next(usernames.filter( x => x !== username))
       })
     });
 
-    this.hubConnection.on('GetOnlineUsers', (arrayOfOnlineUsers : string[], listOfUnreadNumberOrdered : number[]) => {
-      console.log(arrayOfOnlineUsers, listOfUnreadNumberOrdered);
-      let userMessages : UserMessages[] = [];
-      // this.currentUsers$.pipe(take(1)).subscribe( (UsernamesAndMessages : UserMessages[]) => {
-      //   userMessages = UsernamesAndMessages;
-      // });
-      
-      for(let i:number = 0 ; i < arrayOfOnlineUsers.length; i+=1) {
-        let userMessageToAdd : UserMessages = { username : arrayOfOnlineUsers[i], unreadMsgs : listOfUnreadNumberOrdered[i]};
-        userMessages.push(userMessageToAdd);
-      }
-      this.currentUsersSubject.next(userMessages);
+    this.hubConnection.on('GetOnlineUsers', (arrayOfOnlineUsers : string[]) => {
+      this.currentUsersSubject.next(arrayOfOnlineUsers);
     });
 
     this.hubConnection.on("newMessageReceivedNotification", ({senderUsername, senderKnownAs, messagesUnreadReceived}) => {
