@@ -56,37 +56,25 @@ export class PresenceService {
       })
     });
 
-    this.hubConnection.on('GetOnlineUsers', (listOfOnlineUsers : string[]) => {
+    this.hubConnection.on('GetOnlineUsers', (arrayOfOnlineUsers : string[], listOfUnreadNumberOrdered : number[]) => {
+      console.log(arrayOfOnlineUsers, listOfUnreadNumberOrdered);
       let userMessages : UserMessages[] = [];
-      this.currentUsers$.pipe(take(1)).subscribe( (UsernamesAndMessages : UserMessages[]) => {
-        userMessages = UsernamesAndMessages;
-      });
+      // this.currentUsers$.pipe(take(1)).subscribe( (UsernamesAndMessages : UserMessages[]) => {
+      //   userMessages = UsernamesAndMessages;
+      // });
       
-      // for(let i:number = 0 ; i < listOfOnlineUsers.length; i+=1) {
-      //   let userMessageToAdd : UserMessages = { username : listOfOnlineUsers[i], unreadMsgs : 0};
-      //   userMessages.push(userMessageToAdd);
-      // }
+      for(let i:number = 0 ; i < arrayOfOnlineUsers.length; i+=1) {
+        let userMessageToAdd : UserMessages = { username : arrayOfOnlineUsers[i], unreadMsgs : listOfUnreadNumberOrdered[i]};
+        userMessages.push(userMessageToAdd);
+      }
       this.currentUsersSubject.next(userMessages);
     });
 
-    this.hubConnection.on("newMessageReceivedNotification", ({usernameSender,knownAs}) => {
-      let numberOfUnreadMsgs = 0;
-      //let numberOfUnreadMessages = 0;
-      this.currentUsers$.pipe(take(1)).subscribe((UserNameAndMessages : UserMessages[]) => {
-        console.log("macccc", UserNameAndMessages);
-        //let messagesForMe = UserNameAndMessages.find(x => x.username === username).messages;
-        // messagesForMe.forEach(x => {
-        //     if (x.dateRead === null){
-        //       numberOfUnreadMessages++;
-        //     }
-        // });
-        numberOfUnreadMsgs = UserNameAndMessages.find(x => x.username !== usernameSender).unreadMsgs;
-      });
-
-      this.toastr.info("You have new message(s) from " + knownAs + "(" +  numberOfUnreadMsgs + ")" )
+    this.hubConnection.on("newMessageReceivedNotification", ({senderUsername, senderKnownAs, messagesUnreadReceived}) => {
+      this.toastr.info("You have new message(s) from " + senderKnownAs + "(" +  messagesUnreadReceived + ")" )
       .onTap
       .pipe(take(1))
-      .subscribe(() => this.router.navigateByUrl('/members/' + usernameSender + '?tab=3'));
+      .subscribe(() => this.router.navigateByUrl('/members/' + senderUsername + '?tab=3'));
     });
   }
   getConnectionState(){

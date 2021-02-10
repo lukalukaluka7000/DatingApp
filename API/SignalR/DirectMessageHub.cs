@@ -103,12 +103,12 @@ namespace API.SignalR
                 //ako recipient nije konektan na dm hub
                 if (connections != null)
                 {
-                    await presenceHub.Clients.Clients(connections).SendAsync("newMessageReceivedNotification",
-                        new
-                        {
-                            Username = senderUsername,
-                            KnownAs = senderUser.KnownAs
-                        });
+                    //dodat +1 jer taporuka jos nije u bazi pa nismo ni stigli iscitat a to ce se tek kasnije updateat
+                    var messagesUnreadReceived = 1 + recipientUser.MessagesRecieved.Where(x => x.DateRead == null && x.SenderUsername == senderUsername).Count();
+
+                    MessageDtoShortened toSend = new MessageDtoShortened(senderUsername, senderUser.KnownAs, messagesUnreadReceived);
+
+                    await presenceHub.Clients.Clients(connections).SendAsync("newMessageReceivedNotification", toSend);
                 }
             }
 
@@ -158,6 +158,20 @@ namespace API.SignalR
             }
             throw new HubException("Failed to remove from group");
 
+        }
+    }
+
+    internal class MessageDtoShortened
+    {
+        public string senderUsername { get; set; }
+        public string senderKnownAs { get; set; }
+        public int messagesUnreadReceived { get; set; }
+
+        public MessageDtoShortened(string senderUsername, string senderKnownAs, int messagesUnreadReceived)
+        {
+            this.senderUsername = senderUsername;
+            this.senderKnownAs = senderKnownAs;
+            this.messagesUnreadReceived = messagesUnreadReceived;
         }
     }
 }

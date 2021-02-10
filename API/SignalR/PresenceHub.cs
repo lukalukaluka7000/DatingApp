@@ -33,8 +33,15 @@ namespace API.SignalR
             await Clients.All.SendAsync("userConnected", username, messagesUnreadReceived);
             //await Clients.Others.SendAsync("userConnected", username, messagesUnreadReceived); //userConnected na klijentu
 
+            
             var currentUsers = await presenceTracker.GetOnlineUsers();
-            await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers); //samo calleru na klijentu GetOnlineUsers
+            List<int> numbersUnreadMsgs = new List<int>();
+            foreach(var appConnectedUsername in currentUsers) // in current connected users
+            {
+                var user = await unitOfWork.userRepository.GetUserByUsernameAsync(appConnectedUsername);
+                numbersUnreadMsgs.Add( appUser.MessagesRecieved.Where(x => x.DateRead == null).Count() );
+            }
+            await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers, numbersUnreadMsgs); //samo calleru na klijentu GetOnlineUsers
             //a onda klijent od tamo poziva sa trackera ovo gono iz trackera
         }
 
