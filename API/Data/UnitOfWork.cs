@@ -28,9 +28,10 @@ namespace API.Data
             return context.ChangeTracker.HasChanges();
         }
 
-        public async Task<bool> SaveChanges()
+        public async Task<bool> Complete()
         {
             return await context.SaveChangesAsync() > 0;
+            
         }
     }
 }

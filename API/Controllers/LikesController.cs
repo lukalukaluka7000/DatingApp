@@ -45,7 +45,7 @@ namespace API.Controllers
                 SourceUserId = UserSource.Id,
                 LikedUserId = UserLiked.Result.Id
             });
-            if(await unitOfWork.SaveChanges()) return Ok();
+            if(await unitOfWork.Complete()) return Ok();
 
             return BadRequest("Failed to like user");
         }

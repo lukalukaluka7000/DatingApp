@@ -70,7 +70,7 @@ namespace API.Controllers
 
             unitOfWork.userRepository.Update(user);
 
-            if (await unitOfWork.SaveChanges()) return NoContent();
+            if (await unitOfWork.Complete()) return NoContent();
 
             return BadRequest("Failed to update user");
         }
@@ -98,7 +98,7 @@ namespace API.Controllers
             //4 api saves photoUrl and public ID to db
             user.Photos.Add(photo); //dodali pravi photo
             //clientu treba samo photoDTO najs
-            if(await unitOfWork.SaveChanges())
+            if(await unitOfWork.Complete())
             {
                 return CreatedAtRoute("FetchUser",
                     new { username = user.UserName },
@@ -124,7 +124,7 @@ namespace API.Controllers
             //}
             photo.IsMain = true;
 
-            if (await unitOfWork.SaveChanges())
+            if (await unitOfWork.Complete())
             {
                 return Ok("nesto nesto");//NoContent();
             }
@@ -158,7 +158,7 @@ namespace API.Controllers
             //delete foto from db
             user.Photos.Remove(photoToDelete);
 
-            if (await unitOfWork.SaveChanges()) 
+            if (await unitOfWork.Complete()) 
                 return Ok();
 
             return BadRequest("Failed to delete foto");

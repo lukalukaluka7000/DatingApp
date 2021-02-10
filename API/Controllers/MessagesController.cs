@@ -71,7 +71,7 @@ namespace API.Controllers
 
             unitOfWork.messageRepository.AddMessage(message);
 
-            if (await unitOfWork.SaveChanges())
+            if (await unitOfWork.Complete())
                 return Ok(mapper.Map<MessageDTO>(message));
 
             return BadRequest("Failed to send a message");
@@ -114,7 +114,7 @@ namespace API.Controllers
             if(message.SenderDeleted && message.RecipientDeleted)
             {
                 unitOfWork.messageRepository.DeleteMessage(message);
-                if (await unitOfWork.SaveChanges())
+                if (await unitOfWork.Complete())
                     return Ok();
             }
             if (message.SenderDeleted || message.RecipientDeleted)

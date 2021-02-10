@@ -42,12 +42,13 @@ namespace API.SignalR
             var returnedUpdatedGroupWithConnection = await AddToGroup(groupName);
             await Clients.Group(groupName).SendAsync("groupUpdated", returnedUpdatedGroupWithConnection);
 
-            var messages = unitOfWork.messageRepository.GetMessageThread(usernameFirst, usernameSecond);
-            if (unitOfWork.HasChanges())
-            {
-                await unitOfWork.SaveChanges();
-            }
+            var messages = await unitOfWork.messageRepository.GetMessageThread(usernameFirst, usernameSecond);
 
+            if (unitOfWork.HasChanges()) // ovo govno ne tracka nista, potrosia sam 2 sata da nadem sta je problem sa unread porukama, druge instance contexta nema, jednostavno fucking vraca false
+            {
+                bool uspjeh = await unitOfWork.Complete();
+            }
+           
             //now pass those messages to the group i onda tamo u hubu u angularu to docekas
             await Clients.Groups(groupName).SendAsync("receiveCurrentDMs", messages);
 
@@ -109,7 +110,7 @@ namespace API.SignalR
             unitOfWork.messageRepository.AddMessage(message);
             //await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            if (await unitOfWork.SaveChanges())
+            if (await unitOfWork.Complete())
             {
                 await Clients.Group(groupName).SendAsync("newMessageReceived", mapper.Map<MessageDTO>(message));
             }
@@ -131,7 +132,7 @@ namespace API.SignalR
             }
             group.Connections.Add(connection);
 
-            if(await unitOfWork.SaveChanges())
+            if(await unitOfWork.Complete())
             {
                 return group;
             }
@@ -145,7 +146,7 @@ namespace API.SignalR
             {
                 var connection = group.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
                 unitOfWork.messageRepository.RemoveConnection(connection);
-                if(await unitOfWork.SaveChanges())
+                if(await unitOfWork.Complete())
                 {
                     return group;
                 }

@@ -11,7 +11,7 @@ namespace API.Interfaces
         IUserRepository userRepository{ get; }
         ILikesRepository likesRepository{ get; }
         IPhotoRepository photoRepository { get; }
-        Task<bool> SaveChanges();
+        Task<bool> Complete();
         bool HasChanges();
     }
 }

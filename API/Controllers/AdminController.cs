@@ -58,7 +58,7 @@ namespace API.Controllers
         {
             bool success = await unitOfWork.photoRepository.ApprovePhoto(photoId);
             
-            if(success && await unitOfWork.SaveChanges())
+            if(success && await unitOfWork.Complete())
                 return Ok($"Photo with id {photoId} successfuly approved");
 
             return BadRequest("Failed to approve photo by admin");
@@ -69,7 +69,7 @@ namespace API.Controllers
         {
             bool rejected = await unitOfWork.photoRepository.RejectPhoto(photoId);
 
-            if (rejected && await unitOfWork.SaveChanges())
+            if (rejected && await unitOfWork.Complete())
                 return Ok($"Photo with id {photoId} successfuly rejected");
 
             return BadRequest("Failed to reject photo by admin");

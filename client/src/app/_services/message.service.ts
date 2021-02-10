@@ -38,7 +38,8 @@ export class MessageService {
       .catch(error => console.log(error));
     
     this.hubConnection.on("receiveCurrentDMs", (currentMessages ) => {
-      this.allDirectMessagesSubject.next(currentMessages.result);
+      console.log("kralica", currentMessages);
+      this.allDirectMessagesSubject.next(currentMessages);
     });
 
     this.hubConnection.on("newMessageReceived", (newMessage) => {
@@ -69,6 +70,7 @@ export class MessageService {
   }
   stopHubConnection(){
     if(this.hubConnection){
+      this.allDirectMessagesSubject.next([]);
       this.hubConnection.stop().catch(error => console.log(error));
     }
   }

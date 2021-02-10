@@ -98,7 +98,7 @@ namespace API.Data
 
         public async Task<IEnumerable<MessageDTO>> GetMessageThread(string currentUsername, string recipientUsername)
         {
-            var messages = await context.Messages
+            var messages = context.Messages
                 //.Include(u => u.Sender).ThenInclude(p => p.Photos)
                 //.Include(u => u.Recipient).ThenInclude(p => p.Photos)
                 .Where(m =>
@@ -107,13 +107,27 @@ namespace API.Data
                     ||
                     m.Sender.UserName == recipientUsername &&
                     m.Recipient.UserName == currentUsername && m.RecipientDeleted == false)
-                .OrderByDescending(m => m.MessageSent)
-                .ProjectTo<MessageDTO>(mapper.ConfigurationProvider)
-                .ToListAsync();
+                .OrderByDescending(m => m.MessageSent);
+
+
+
+            // messages.ForEach(m => m.DateRead = DateTime.UtcNow ? m.DateRead == null && m.RecipientUsername == currentUsername );
+
+            // messages.ProjectTo<MessageDTO>(mapper.ConfigurationProvider);
+
+            //for (int i = 0; i < messages.Count(); i++)
+            //{
+            //    if(messages[i].DateRead == null && messages[i].RecipientUsername == currentUsername)
+            //    {
+            //        messages[i].DateRead = DateTime.UtcNow;
+            //    }
+            //}
+
 
             // mark messages as read, we not projecting so include photos + tolistasync
             var unReadMessages = messages.Where(m => m.DateRead == null && 
                 m.RecipientUsername == currentUsername).ToList(); // ja sam primatelj, ovo bi skuzia sam u dizajnu
+
 
             if (unReadMessages.Any())
             {
@@ -126,7 +140,8 @@ namespace API.Data
             }
 
             //nema Project<> jer vec imam ToList
-            return messages;
+            var toreutr= await mapper.ProjectTo<MessageDTO>(messages).ToListAsync();
+            return toreutr;
         }
     }
 }
