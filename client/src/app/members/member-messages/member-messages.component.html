@@ -20,11 +20,13 @@
             No messages yet... say hi by using the message box above
         </div>
 
-        <ul #scrollMe
-            style="overflow: scroll; height: 500px;"
-            [scrollTop]="scrollMe.scrollHeight"
+        <!-- #scrollMe
+        style="overflow: scroll; height: 500px;"
+        [scrollTop]="scrollMe.scrollHeight" 
+        nadi bolje rjesenje - class=  "chat custom-scrollbar-css p-2"-->
+        <ul 
             *ngIf="(messageService.allDirectMessages$ | async).length > 0" 
-            class="chat custom-scrollbar-css p-2">
+            class="chat">
             <li *ngFor="let message of (messageService.allDirectMessages$ | async)">
                 <div [ngClass]="{'otherUserMsg':message.senderUsername===username}">
                     <span class="chat-img">

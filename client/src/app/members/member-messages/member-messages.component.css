@@ -31,7 +31,7 @@
   
   /* Custom Scrollbar using CSS */
   .custom-scrollbar-css {
-    overflow-y: scroll;
+    overflow-x: auto;
   }
   
   /* scrollbar width */
