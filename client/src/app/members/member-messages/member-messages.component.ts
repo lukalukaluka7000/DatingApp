@@ -20,8 +20,8 @@ export class MemberMessagesComponent implements OnInit {
 
   ngOnInit(): void {
     this.messageService.allDirectMessages$.subscribe((currentMessages) => {
-      console.log("maci", currentMessages);
       this.messages = currentMessages;
+      console.log("______________________________________");
     });
   }
 

@@ -1,4 +1,5 @@
 ﻿using API.Extensions;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -13,18 +14,24 @@ namespace API.SignalR
     public class PresenceHub : Hub
     {
         private readonly PresenceTracker presenceTracker;
+        private readonly IUnitOfWork unitOfWork;
 
-        public PresenceHub(PresenceTracker presenceTracker)
+        public PresenceHub(PresenceTracker presenceTracker, IUnitOfWork uow)
         {
             this.presenceTracker = presenceTracker;
+            this.unitOfWork = uow;
         }
 
         public override async Task OnConnectedAsync()
         {
             var username = Context.User.FindFirst(ClaimTypes.Name)?.Value;
             await presenceTracker.UserConnected(username, Context.ConnectionId);
-            
-            await Clients.Others.SendAsync("userConnected", username); //userConnected na klijentu
+
+            var appUser = await unitOfWork.userRepository.GetUserByUsernameAsync(username);
+            var messagesUnreadReceived = appUser.MessagesRecieved.Where(x => x.DateRead == null).Count();
+
+            await Clients.All.SendAsync("userConnected", username, messagesUnreadReceived);
+            //await Clients.Others.SendAsync("userConnected", username, messagesUnreadReceived); //userConnected na klijentu
 
             var currentUsers = await presenceTracker.GetOnlineUsers();
             await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers); //samo calleru na klijentu GetOnlineUsers

@@ -82,6 +82,7 @@ namespace API.Controllers
             MessageParams messageParams)
         {
             messageParams.Username = User.FindFirst(ClaimTypes.Name)?.Value;
+            messageParams.PageSize = 15;
 
             var messages = await unitOfWork.messageRepository.GetMessagesForUser(messageParams);
 

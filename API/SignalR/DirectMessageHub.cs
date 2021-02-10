@@ -90,20 +90,25 @@ namespace API.SignalR
 
             var groupName = ConstructGroupName(senderUsername, recipientUser.UserName);
             var group = await unitOfWork.messageRepository.GetMessageGroup(groupName);
-            
+
             // ako postoji konekcija, a ako ne kreiraj je
-            if(group.Connections.Any(x => x.Username == recipientUser.UserName))
+            if (group.Connections.Any(x => x.Username == recipientUser.UserName))
             {
                 message.DateRead = DateTime.UtcNow;
+
             }
             else
             {
                 var connections = await tracker.GetConnectionsForUser(recipientUser.UserName);
                 //ako recipient nije konektan na dm hub
-                if(connections != null)
+                if (connections != null)
                 {
                     await presenceHub.Clients.Clients(connections).SendAsync("newMessageReceivedNotification",
-                        new { Username = senderUsername, KnownAs = senderUser.KnownAs });
+                        new
+                        {
+                            Username = senderUsername,
+                            KnownAs = senderUser.KnownAs
+                        });
                 }
             }
 

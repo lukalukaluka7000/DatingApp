@@ -51,7 +51,7 @@ export class MessageHubService {
       this.allLiveMessagesSubject.next(listOfLiveMessages.result);
       
     });
-    console.log(this.hubConnection.state);
+
     this.hubConnection.on('SendDM', (message: string) => {
       console.log('SendDM AAAAA', message);  
     });

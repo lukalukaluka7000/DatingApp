@@ -99,6 +99,7 @@ namespace API.Data
         {
             return await _context.Users
                 .Include(p => p.Photos)
+                .Include(mr => mr.MessagesRecieved)
                 .FirstOrDefaultAsync(x => x.UserName == username);
         }
 

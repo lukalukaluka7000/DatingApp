@@ -23,7 +23,7 @@ export class MessageService {
   allDirectMessagesSubject = new BehaviorSubject<Message[]>([]);
   allDirectMessages$ = this.allDirectMessagesSubject.asObservable();
 
-  constructor(private http: HttpClient, private memberService:MembersService, private toastr: ToastrService) { }
+  constructor(private http: HttpClient, private memberService:MembersService) { }
 
   createHubConnection(user: User, otherUsername: string) {
     this.hubConnection = new HubConnectionBuilder()
